@@ -64,8 +64,19 @@ const readProfile = async (req, res) => {
 	}
 };
 
+const getAllUsers = async (req, res) => {
+	try {
+		const users = await User.find();
+
+		res.status(200).send({ results: users.length, users });
+	} catch (err) {
+		res.status(400).send({ error: err.message });
+	}
+};
+
 module.exports = {
 	register,
 	login,
 	readProfile,
+	getAllUsers,
 };
