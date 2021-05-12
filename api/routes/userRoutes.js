@@ -9,8 +9,9 @@ const {
 	getAllUsers,
 } = require('../controllers/user/user');
 
-router.post('/register', register);
 router.post('/login', login);
+router.post('/register', register);
+
 router.get('/me', checkToken, readProfile);
 
 router.get('/', getAllUsers);

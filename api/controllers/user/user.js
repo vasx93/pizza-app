@@ -1,6 +1,7 @@
 const User = require('../../models/User');
 const Order = require('../../models/Order');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const register = async (req, res) => {
 	try {
@@ -17,7 +18,7 @@ const register = async (req, res) => {
 		);
 		user.token = token;
 
-		await user.save({ runValidators: true, new: true });
+		await user.save();
 
 		res
 			.status(201)
@@ -48,7 +49,7 @@ const login = async (req, res) => {
 		);
 
 		user.token = token;
-		await user.save({ runValidators: true, new: true });
+		await user.save();
 
 		res.status(200).send({ message: 'Login successful', user, token });
 	} catch (err) {
