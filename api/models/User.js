@@ -1,4 +1,5 @@
 const mongoose = require('moongoose');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema(
 	{
@@ -29,18 +30,12 @@ const userSchema = new mongoose.Schema(
 			trim: true,
 		},
 
-		phone: {
-			type: String,
-			required: true,
-		},
-		address: {
-			type: String,
-			required: true,
-		},
+		passwordChangedAt: Date,
 
 		role: {
 			type: String,
 			enum: ['user', 'admin'],
+			default: 'user',
 		},
 
 		orders: [
@@ -49,9 +44,19 @@ const userSchema = new mongoose.Schema(
 				ref: 'Order',
 			},
 		],
+
+		token: String,
 	},
 	{ timestamps: true }
 );
+
+userSchema.pre('save', async function (next) {
+	if (this.isModified('password') || this.isNew) {
+		this.password = await bcrypt.hash(this.password, 6);
+		this.passwordChangedAt = Date.now() - 1000;
+	}
+	next();
+});
 
 const User = mongoose.model('User', userSchema);
 
