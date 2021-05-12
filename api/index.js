@@ -5,6 +5,8 @@ const express = require('express');
 const compression = require('compression');
 
 const userRouter = require('./routes/userRoutes');
+const orderRouter = require('./routes/orderRoutes');
+const ingredientRouter = require('./routes/ingredientRoutes');
 
 const app = express();
 
@@ -14,6 +16,8 @@ app.use(express.json());
 app.use(compression());
 
 app.use('/users', userRouter);
+app.use('/orders', orderRouter);
+app.use('/ingredients', ingredientRouter);
 
 app.all('*', (req, res) => {
 	res.sendFile(path.join(__dirname, '../public/index.html'));
