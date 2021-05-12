@@ -26,6 +26,7 @@
 		"compression": "^1.7.4",
 		"dotenv": "^9.0.2",
 		"express": "^4.17.1",
+		"express-validator": "^6.11.1",
 		"mongoose": "^5.12.8"
 	}
 }
