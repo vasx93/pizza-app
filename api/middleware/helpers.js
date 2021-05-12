@@ -1,4 +1,4 @@
-const User = require('../models/user');
+const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 module.exports = {
@@ -12,6 +12,7 @@ module.exports = {
 			}
 
 			const token = req.headers.authorization.split(' ')[1];
+			console.log('zasto');
 
 			if (!token) {
 				throw new Error();
@@ -19,7 +20,7 @@ module.exports = {
 
 			const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-			const user = await User.findOneById(decoded._id);
+			const user = await User.findOne({ _id: decoded._id });
 
 			if (!user) {
 				throw new Error();
