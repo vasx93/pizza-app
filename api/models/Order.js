@@ -26,12 +26,12 @@ const orderSchema = new mongoose.Schema(
 
 		phone: {
 			type: String,
-			required: true,
+			default: '',
 		},
 
 		address: {
 			type: String,
-			required: true,
+			default: '',
 		},
 
 		status: {
@@ -39,15 +39,17 @@ const orderSchema = new mongoose.Schema(
 			default: 'Order placed',
 		},
 
-		timeLeft: {
-			type: Date,
-		},
+		total: Number,
+
+		orderedAt: Date,
+
+		size: String,
 
 		items: [
 			{
-				type: mongoose.Schema.ObjectId,
-				ref: 'Ingredient',
-				required: true,
+				name: String,
+				price: Number,
+				time: Number,
 			},
 		],
 	},

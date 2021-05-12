@@ -12,7 +12,6 @@ module.exports = {
 			}
 
 			const token = req.headers.authorization.split(' ')[1];
-			console.log('zasto');
 
 			if (!token) {
 				throw new Error();
@@ -42,26 +41,5 @@ module.exports = {
 			}
 			next();
 		};
-	},
-
-	// only for rendered pages -> no errors
-	async isLoggedIn(req, res, next) {
-		if (req.cookies.jwt) {
-			try {
-				const token = req.cookies.jwt;
-				const user = await User.validateToken(token);
-
-				if (!user || !token) {
-					return next();
-				}
-				// User is logged in (no errors)
-				// res.locals variables are available in PUG
-				res.locals.user = user;
-				return next();
-			} catch (e) {
-				return next();
-			}
-		}
-		next();
 	},
 };
