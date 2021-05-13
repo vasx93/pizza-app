@@ -34,24 +34,26 @@ const orderSchema = new mongoose.Schema(
 			default: '',
 		},
 
+		items: [
+			{
+				_id: false,
+				name: String,
+				price: Number,
+			},
+		],
+
+		size: String,
+
+		total: Number,
+
+		finishedAt: String,
+
+		timeNeeded: Number,
+
 		status: {
 			type: String,
 			default: 'Order placed',
 		},
-
-		total: Number,
-
-		orderedAt: Date,
-
-		size: String,
-
-		items: [
-			{
-				name: String,
-				price: Number,
-				time: Number,
-			},
-		],
 	},
 	{ timestamps: true }
 );

@@ -25,13 +25,10 @@ const createOrder = async (req, res) => {
 	try {
 		let orderArray = [];
 
-		let ms = 0;
-		let total = 0;
+		const pizza_base = PIZZA_SIZE.find(item => item.size === req.body.size);
 
-		const size = PIZZA_SIZE.find(item => item.size === req.body.size);
-
-		ms += size.time;
-		total += size.price;
+		let ms = pizza_base.time;
+		let total = pizza_base.price;
 
 		req.body.ingredients.forEach(el => {
 			let match = INGREDIENTS_LIST.find(item => item.name === el);
@@ -42,30 +39,30 @@ const createOrder = async (req, res) => {
 				total += match.price;
 			}
 		});
-		// console.log(orderArray, ms, total);
+		console.log(orderArray, ms, total);
 
-		const ORDER = Order.create({
+		function setTime(added = 0) {
+			return new Date(Date.now() + added).toLocaleTimeString();
+		}
+
+		const order = await Order.create({
 			customer: req.user,
 			firstName,
 			lastName,
 			address,
 			phone,
-			total,
-			size: size.size,
 			items: orderArray,
-			orderedAt: new Date(Date.now()).toLocaleTimeString(),
+			size: pizza_base.size,
+			total,
+			finishedAt: setTime(ms),
+			timeNeeded: ms,
 		});
-		console.log(ORDER, 'order_placed but not complete');
-
-		const id = setTimeout(async () => {
-			await ORDER;
-			console.log('finished order in ', ms);
-		}, ms);
-
-		//TODO setTimoue ostavlja pending promise, ne cuva se u bazu vec prelaci na res.send...moraju se koristiti soketi
 
 		//TODO takodje srediti count, da broji i cuva u bazu koriscenje odredjenih sastojaka
-		res.status(201).send({ message: 'Order placed!' });
+
+		//TODO porudzbine rade, treba koristiti sokete za real time
+
+		res.status(201).send({ message: 'Order placed!', order });
 	} catch (err) {
 		res.status(400).send({ error: err.message });
 	}

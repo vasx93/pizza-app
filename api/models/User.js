@@ -47,8 +47,20 @@ const userSchema = new mongoose.Schema(
 
 		token: String,
 	},
-	{ timestamps: true }
+	{ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+userSchema.methods.toJSON = function () {
+	const user = this.toObject();
+
+	delete user.password;
+	delete user.passwordChangedAt;
+	delete user.__v;
+	delete user.id;
+	delete user.createdAt;
+	delete user.updatedAt;
+	return user;
+};
 
 userSchema.pre('save', async function (next) {
 	if (this.isModified('password') || this.isNew) {
