@@ -46,14 +46,7 @@ const orderSchema = new mongoose.Schema(
 
 		total: Number,
 
-		finishedAt: String,
-
 		timeNeeded: Number,
-
-		status: {
-			type: String,
-			default: 'Order placed',
-		},
 	},
 	{ timestamps: true }
 );

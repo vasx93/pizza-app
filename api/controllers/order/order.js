@@ -1,6 +1,9 @@
 const Order = require('../../models/Order');
-const Ingredient = require('../../models/Ingredient');
+const Status = require('../../models/Status');
 const INGREDIENTS_LIST = require('../../../ingredients.json');
+
+require('../../utils/jobQueue');
+const { placeOrder } = require('../../utils/serveJob');
 
 const PIZZA_SIZE = [
 	{
@@ -27,10 +30,16 @@ const createOrder = async (req, res) => {
 
 		const pizza_base = PIZZA_SIZE.find(item => item.size === req.body.size);
 
-		let ms = pizza_base.time;
+		let ms = pizza_base.time + 3000;
 		let total = pizza_base.price;
 
-		req.body.ingredients.forEach(el => {
+		const ingredients = [...new Set(req.body.ingredients)];
+
+		if (!ingredients) {
+			return res.status(422).send();
+		}
+
+		ingredients.forEach(el => {
 			let match = INGREDIENTS_LIST.find(item => item.name === el);
 			if (match) {
 				let itemObj = { name: match.name, price: match.price };
@@ -39,14 +48,9 @@ const createOrder = async (req, res) => {
 				total += match.price;
 			}
 		});
-		console.log(orderArray, ms, total);
-
-		function setTime(added = 0) {
-			return new Date(Date.now() + added).toLocaleTimeString();
-		}
 
 		const order = await Order.create({
-			customer: req.user,
+			customer: req.user._id,
 			firstName,
 			lastName,
 			address,
@@ -54,15 +58,31 @@ const createOrder = async (req, res) => {
 			items: orderArray,
 			size: pizza_base.size,
 			total,
-			finishedAt: setTime(ms),
 			timeNeeded: ms,
 		});
 
-		//TODO takodje srediti count, da broji i cuva u bazu koriscenje odredjenih sastojaka
+		if (!order) {
+			return res.status(400).send();
+		}
+		await Status.create({ order: order._id });
 
-		//TODO porudzbine rade, treba koristiti sokete za real time
+		await placeOrder(order);
 
-		res.status(201).send({ message: 'Order placed!', order });
+		res.status(201).json({ done: true, message: 'Order placed' });
+	} catch (err) {
+		res.status(400).send({ error: err.message });
+	}
+};
+
+const cancelOrder = async (req, res) => {
+	try {
+		await Status.findByIdAndUpdate(req.params.id, {
+			status: 'Canceled',
+		});
+
+		await Order.findByIdAndDelete(req.params.id);
+
+		res.status(200).send({ message: 'Order cancelled' });
 	} catch (err) {
 		res.status(400).send({ error: err.message });
 	}
@@ -79,6 +99,7 @@ const getAllOrders = async (req, res) => {
 };
 
 module.exports = {
+	cancelOrder,
 	createOrder,
 	getAllOrders,
 };
